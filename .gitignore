@@ -1,0 +1,15 @@
+.env
+google_tokens.json
+google_oauth_pending.json
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Personal data
+Resume.docx
+resume.txt
+tailored_resume.txt
+applications.json
+saved_applications/
