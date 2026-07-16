@@ -23,8 +23,10 @@ if GOOGLE_REDIRECT_URI.startswith("http://"):
 os.environ.setdefault("OAUTHLIB_RELAX_TOKEN_SCOPE", "1")
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.events", "openid", "email"]
-TOKENS_FILE = "google_tokens.json"
-PENDING_AUTH_FILE = "google_oauth_pending.json"
+DATA_DIR = os.getenv("DATA_DIR", ".")
+os.makedirs(DATA_DIR, exist_ok=True)
+TOKENS_FILE = os.path.join(DATA_DIR, "google_tokens.json")
+PENDING_AUTH_FILE = os.path.join(DATA_DIR, "google_oauth_pending.json")
 
 CLIENT_CONFIG = {
     "web": {

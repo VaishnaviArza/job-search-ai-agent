@@ -21,8 +21,10 @@ claude_api_key = os.getenv("ANTHROPIC_API_KEY")
 #initialization
 client = anthropic.Anthropic(api_key=claude_api_key)
 
-APPLICATIONS_FILE = 'applications.json'
-SAVED_APPLICATIONS_DIR = 'saved_applications'
+DATA_DIR = os.getenv("DATA_DIR", ".")
+os.makedirs(DATA_DIR, exist_ok=True)
+APPLICATIONS_FILE = os.path.join(DATA_DIR, 'applications.json')
+SAVED_APPLICATIONS_DIR = os.path.join(DATA_DIR, 'saved_applications')
 STATUS_OPTIONS = ["Applied", "Shortlisted", "Interview", "Offer", "Rejected"]
 
 CAREER_URL_KEYWORDS = [

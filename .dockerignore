@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+.env
+google_tokens.json
+google_oauth_pending.json
+applications.json
+saved_applications/
+Resume.docx
+resume.txt
+tailored_resume.txt
+.git/
+
+frontend/node_modules/
+frontend/dist/

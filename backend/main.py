@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from typing import List, Optional
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel
 
 import agent
@@ -16,6 +16,8 @@ import google_calendar
 import voice
 
 app = FastAPI(title="Career Agent API")
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 
 # ---------- Phase 1 ----------
@@ -330,7 +332,7 @@ async def google_auth_callback(code: str):
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Google token exchange failed: {e}")
-    return RedirectResponse(url="http://localhost:5173/tracker?google=connected")
+    return RedirectResponse(url=f"{FRONTEND_URL}/tracker?google=connected")
 
 
 @app.get("/api/google/status")
@@ -394,3 +396,20 @@ async def calendar_sync(app_id: str, body: CalendarSyncRequest):
     agent.save_calendar_sync(app_id, blocks_as_dicts if created > 0 else [], new_event_ids)
 
     return {"created": created, "failed": len(errors), "errors": errors, "already_synced": False, "replaced": replaced}
+
+
+# ---------- Frontend (production) ----------
+# In production the built frontend (frontend/dist) is served from this same
+# app so the SPA and API share one origin -- no CORS, no separate host to wire up.
+# In dev the Vite dev server handles the frontend instead, so this is a no-op
+# when frontend/dist hasn't been built.
+
+_FRONTEND_DIST = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "dist")
+
+if os.path.isdir(_FRONTEND_DIST):
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        candidate = os.path.join(_FRONTEND_DIST, full_path)
+        if full_path and os.path.isfile(candidate):
+            return FileResponse(candidate)
+        return FileResponse(os.path.join(_FRONTEND_DIST, "index.html"))
